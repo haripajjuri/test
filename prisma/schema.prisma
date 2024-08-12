@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String    @id @default(auto()) @map("_id") @db.ObjectId
+  email    String    @unique
+  name     String    @unique
+  password String
+  posts    Post[]
+  comments Comment[]
+}
+
+model Post {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  title       String    @unique
+  description String
+  image       String
+  author      User      @relation(fields: [authorId], references: [id])
+  category    String
+  slug        String    @unique
+  authorId    String    @db.ObjectId
+  createdAt   DateTime  @default(now())
+  isEdited Boolean @default(false)
+  comments    Comment[]
+  imageId String
+}
+
+model Comment {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  comment String
+
+  cmntAuthor   User   @relation(fields: [cmntAuthorId], references: [id])
+  cmntAuthorId String @db.ObjectId
+
+  post   Post   @relation(fields: [postId], references: [id])
+  postId String @db.ObjectId
+
+  createdAt   DateTime  @default(now())
+}

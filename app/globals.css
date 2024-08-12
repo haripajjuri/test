@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    h1 {
+        @apply text-3xl;
+        @apply font-bold;
+    }
+    h2 {
+        @apply text-2xl;
+        @apply font-bold;
+    }
+    h3 {
+        @apply text-xl;
+        @apply font-bold;
+    }
+    h4 {
+        @apply text-xl;
+        @apply font-semibold;
+    }
+    h5 {
+        @apply text-base; /*or text-lg */
+        @apply font-semibold;
+    }
+    h6 {
+        @apply text-sm;
+        @apply font-semibold;
+    }
+}
+
+.text-field {
+    border: 2px solid gray;
+    border-radius: 10px;
+    width: 90%;
+    padding: 9px;
+    font-size: 15px;
+    margin-top: 10px;
+}
+input:focus {
+    outline-color: black;
+}
+
+.text-area {
+    border: 2px solid gray;
+    border-radius: 10px;
+    padding: 9px;
+    font-size: 15px;
+    margin-top: 10px;
+    overflow: auto;
+    height: 400px;
+}
+
+.text-msg {
+    width: 86%;
+    font-size: 11px;
+    color: red;
+}
+
+.code-area {
+    color: white;
+    background-color: rgb(28, 27, 47);
+}
