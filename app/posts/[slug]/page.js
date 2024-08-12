@@ -9,10 +9,7 @@ import { GoDotFill } from "react-icons/go";
 import Timeago from "./timeago";
 import { getPlaiceholder } from "plaiceholder";
 import { TbFileSad } from "react-icons/tb";
-import { getUser } from "./action";
-import Cmnt from "./cmnt";
-import { Suspense } from "react";
-import { revalidatePath } from "next/cache";
+import { getComments, getUser } from "./action";
 
 export default async function Slug({ params }) {
     const prisma = new PrismaClient();
@@ -22,28 +19,41 @@ export default async function Slug({ params }) {
         where: {
             slug: params.slug,
         },
+        include: {
+            comments: {
+                include: {
+                    cmntAuthor: {
+                        include: {
+                            password: false,
+                        },
+                    },
+                },
+                orderBy: {
+                    createdAt: "desc",
+                },
+            },
+            author: {
+                include: {
+                    password: false,
+                },
+            },
+        },
     });
+
+    //console.log(post);
+
     if (post == null) {
         return notFound();
     }
+    const comments = post.comments;
+    console.log(comments);
 
     const currentUser = await decrypt(cookies().get("session")?.value);
-
-    //code for fetching comments from database
-
-    const comments = await prisma.comment.findMany({
-        where: {
-            postId: post.id,
-        },
-    });
-    //comments.reverse();
 
     const buffer = await fetch(post.image).then(async (res) => {
         return Buffer.from(await res.arrayBuffer());
     });
     const { base64 } = await getPlaiceholder(buffer);
-
-    const postedBy = await getUser(post.authorId);
 
     return (
         <div className="md:mx-[10%] mx-4 flex flex-col items-center">
@@ -68,7 +78,7 @@ export default async function Slug({ params }) {
                     </div>
                 ) : (
                     <p className="font-medium text-sm text-gray-500">
-                        posted by {postedBy?.name}
+                        posted by {post?.author?.name}
                     </p>
                 )}
 
@@ -81,6 +91,7 @@ export default async function Slug({ params }) {
                 </p>
             </div>
 
+            {/* image-section */}
             <div className="w-full overflow-hidden flex items-center justify-center rounded-md my-2">
                 {/* <Image
                     src={post.image}
@@ -91,6 +102,7 @@ export default async function Slug({ params }) {
                 /> */}
             </div>
 
+            {/* description */}
             <div
                 className="prose-sm prose !max-w-none mt-8"
                 dangerouslySetInnerHTML={{
@@ -98,6 +110,7 @@ export default async function Slug({ params }) {
                 }}
             />
 
+            {/* comment section starts here */}
             <div className="w-full mt-10 mb-2 text-gray-600">
                 <div className="font-semibold text-3xl">Comments</div>
             </div>
@@ -112,26 +125,10 @@ export default async function Slug({ params }) {
                 )}
             </div>
 
-            <div className="w-full">
-                {comments?.length == 0 ? (
-                    <div className="flex gap-1 items-center mt-2 mb-8">
-                        <TbFileSad size={"1.5em"} />
-                        <p className="font-semibold text-sm">
-                            no comments. be first to comment
-                        </p>
-                    </div>
-                ) : (
-                    <div className="flex flex-col gap-1 py-7 mb-6">
-                        {comments.map((ele, i) => (
-                            <div key={i}>
-                                <Cmnt
-                                    cmnt={ele}
-                                    cmntAuthorId={ele.cmntAuthorId}
-                                />
-                            </div>
-                        ))}
-                    </div>
-                )}
+            <div>
+                {comments.map((comment, i) => (
+                    <div key={i}>{comment.comment}</div>
+                ))}
             </div>
         </div>
     );

@@ -24,6 +24,33 @@ export async function commentAction(postId, comment, slug) {
     }
 }
 
+export async function getComments(postId) {
+    const prisma = new PrismaClient();
+    try {
+        const comments = await prisma.comment.findMany({
+            where: {
+                postId: postId,
+            },
+            orderBy: {
+                createdAt: "desc",
+            },
+            include: {
+                cmntAuthor: {
+                    include: {
+                        password: false,
+                    },
+                },
+            },
+        });
+        if (comments.length == 0) {
+            throw new Error("empty");
+        }
+        return comments;
+    } catch (err) {
+        return { message: err.message, success: false };
+    }
+}
+
 export async function deleteButtonAction(id, imageId) {
     const prisma = new PrismaClient();
     cloudinary.config({
@@ -58,9 +85,10 @@ export async function getUser(userId) {
             },
         });
         if (!user) {
-            return "unknown";
+            return "";
         }
         return user;
-    } catch (err) {}
+    } catch (err) {
+        return { message: "unknown error occured", success: false };
+    }
 }
-
