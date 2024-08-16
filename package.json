@@ -10,7 +10,7 @@
     },
     "dependencies": {
         "@hookform/resolvers": "^3.9.0",
-        "@img/sharp-win32-x64": "^0.33.4",
+        "@img/sharp-linux-x64": "^0.33.4",
         "@prisma/client": "^5.16.2",
         "@tiptap/extension-blockquote": "^2.5.9",
         "@tiptap/extension-bullet-list": "^2.5.9",
