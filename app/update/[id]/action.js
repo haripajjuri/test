@@ -1,18 +1,36 @@
 "use server";
 
 import { decrypt, verifySession } from "@/app/(lib)/sessions";
-import prisma from "../(lib)/prisma";
+import prisma from "../../(lib)/prisma";
 import { cookies } from "next/headers";
 import { v2 as cloudinary } from "cloudinary";
+import { notFound } from "next/navigation";
+import { revalidatePath, revalidateTag } from "next/cache";
+
+//function to send the details of post using id
+export async function getPostDetails(id) {
+    try {
+        const post = await prisma.post.findUnique({
+            where: {
+                id: id,
+            },
+        });
+        if (!post) {
+            throw new Error("no posts found");
+        }
+        return { ...post, success: true };
+    } catch (err) {
+        return { message: err.message, success: false };
+    }
+}
 
 //function to upload image and return url
-export async function uploadImage(FormData) {
+export async function replaceImage(FormData) {
     try {
         const file = FormData.get("image");
+        const publicId = FormData.get("publicId");
         const arrayBuffer = await file.arrayBuffer();
         const buffer = new Uint8Array(arrayBuffer);
-
-        const user = await verifySession();
 
         cloudinary.config({
             cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -20,25 +38,25 @@ export async function uploadImage(FormData) {
             api_secret: process.env.CLOUDINARY_API_SECRET,
         });
 
-        if (!user) {
-            throw new Error("you are not authorized, please login!");
-        }
-
         const post = await new Promise((resolve, reject) => {
             cloudinary.uploader
-                .upload_stream({ quality: "auto" }, function (err, result) {
-                    if (err) {
-                        throw new Error("unable to upload image");
+                .upload_stream(
+                    {
+                        public_id: publicId,
+                        overwrite: true,
+                        invalidate: true,
+                        quality: "auto",
+                    },
+                    function (err, result) {
+                        if (err) {
+                            throw new Error("unable to upload image");
+                        }
+                        resolve(result);
                     }
-                    resolve(result);
-                })
+                )
                 .end(buffer);
         });
-        return {
-            url: post.secure_url,
-            publicId: post.public_id,
-            success: true,
-        };
+        return { ...post, success: true };
     } catch (err) {
         return { message: err.message, success: false };
     }
@@ -53,21 +71,20 @@ export async function createSlug(input) {
     return slug;
 }
 
-export async function createPostAction(data) {
+export async function updatePostAction(data) {
     try {
-        const user = await decrypt(cookies().get("session")?.value);
-        if (!user.success) {
-            throw new Error("please login to post");
-        }
-        const post = await prisma.post.create({
+        const post = await prisma.post.update({
+            where: {
+                id: data.id,
+            },
             data: {
                 title: data.title,
                 description: data.description,
+                category: data.category,
                 image: data.image,
                 imageId: data.imageId,
-                category: data.category,
                 slug: data.slug,
-                authorId: user.id,
+                isEdited: true,
             },
         });
         return { ...post, success: true };
@@ -76,14 +93,17 @@ export async function createPostAction(data) {
     }
 }
 
-export async function doTitleExist(title) {
+export async function validateTitle(title, id) {
     const res = await prisma.post.findMany({
         where: {
             title: title,
         },
     });
     if (res.length == 0) {
-        return false;
+        return true;
     }
-    return true;
+    if (res[0].id == id) {
+        return true;
+    }
+    return false;
 }

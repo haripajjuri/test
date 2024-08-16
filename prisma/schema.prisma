@@ -28,7 +28,7 @@ model Post {
   authorId    String    @db.ObjectId
   createdAt   DateTime  @default(now())
   isEdited Boolean @default(false)
-  comments    Comment[]
+  comments    Comment[] 
   imageId String
 }
 
@@ -39,7 +39,7 @@ model Comment {
   cmntAuthor   User   @relation(fields: [cmntAuthorId], references: [id])
   cmntAuthorId String @db.ObjectId
 
-  post   Post   @relation(fields: [postId], references: [id])
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId String @db.ObjectId
 
   createdAt   DateTime  @default(now())

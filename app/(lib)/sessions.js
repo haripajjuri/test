@@ -1,5 +1,6 @@
 "use server";
 import * as jose from "jose";
+import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -48,7 +49,6 @@ export async function createSession(user) {
     const token = await encrypt(user);
     if (token) {
         cookies().set(cookie?.name, token, { ...cookie.options });
-        console.log("session created");
         return { message: "Login Sucessful", success: true };
     }
     return { message: "unable to login", success: false };
@@ -58,16 +58,22 @@ export async function createSession(user) {
 export async function verifySession() {
     const token = cookies().get(cookie.name)?.value;
     if (token) {
-        const user = await decrypt(token);
-        if (user.success) {
-            return true;
-        }
+        //const user = await decrypt(token);
+        // if (user.success) {
+        //     return true;
+        // }
+        return true;
     }
     return false;
 }
 
 //function to logout and redirect to login page
 export async function deleteSession() {
-    cookies().delete(cookie.name);
-    redirect("/login");
+    try {
+        cookies().delete(cookie.name);
+        return { message: "session deleted", success: true };
+    } catch (err) {
+        console.log(err);
+        return { message: "an error occured", success: false };
+    }
 }

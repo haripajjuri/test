@@ -28,6 +28,14 @@
         @apply font-semibold;
     }
 }
+p.is-editor-empty:first-child::before {
+    color: rgb(158, 158, 158);
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+    font-weight: 500;
+}
 
 .text-field {
     border: 2px solid gray;
@@ -41,14 +49,20 @@ input:focus {
     outline-color: black;
 }
 
+.comment-input {
+    padding: 4px;
+    border-bottom: 2px solid rgb(176, 176, 176);
+    width: 30%;
+}
+
 .text-area {
-    border: 2px solid gray;
-    border-radius: 10px;
+    border: 2px solid rgb(206, 206, 206);
+    border-radius: 5px;
     padding: 9px;
     font-size: 15px;
     margin-top: 10px;
     overflow: auto;
-    height: 400px;
+    height: 360px;
 }
 
 .text-msg {

@@ -1,10 +1,9 @@
 "use server";
-import { PrismaClient } from "@prisma/client";
+
 import { createSession } from "../(lib)/sessions";
+import prisma from "../(lib)/prisma";
 
 export default async function loginAction({ email, password }) {
-    const prisma = new PrismaClient();
-
     try {
         const user = await prisma.user.findUnique({
             where: {
