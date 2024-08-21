@@ -45,7 +45,7 @@ export function Comment({ postId, slug }) {
                     type="text"
                     placeholder="write a comment"
                     name="comment"
-                    className="comment-input font-medium text-base focus:outline-none"
+                    className="comment-input font-medium md:text-base text-sm focus:outline-none md:w-1/3"
                 />
 
                 <button

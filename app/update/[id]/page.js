@@ -7,7 +7,7 @@ import { cookies } from "next/headers";
 export default async function UpdatePost({ params }) {
     const user = await decrypt(cookies().get("session")?.value);
     if (!user.success) {
-        redirect("/login");
+        redirect(`/login?redirect=/update/${params.id}`);
     }
 
     const post = await getPostDetails(params.id);

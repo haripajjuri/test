@@ -4,13 +4,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState } from "react";
 import loginAction from "./action";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
 
 export default function Login() {
     const router = useRouter();
-
+    const searchParams = useSearchParams();
+    const redirect = searchParams.get("redirect") || null;
+    console.log(redirect);
     // this state is used to display weather is the user exists or the password is incorrect
     const [state, setState] = useState("");
 
@@ -32,12 +34,22 @@ export default function Login() {
     //this is function called by submitting the form, this function will call a server function to create session for authenticated user
     async function post(data) {
         setState("");
+        const loadingToast = toast.loading("please wait...");
         const res = await loginAction(data);
         if (!res.success) {
+            toast.dismiss(loadingToast);
             setState(res.message);
         } else {
-            toast.success("login sucessful");
-            router.push("/");
+            if (redirect != null) {
+                toast.dismiss(loadingToast);
+                toast.success("redirecting...");
+                console.log(redirect);
+                router.push(redirect);
+            } else {
+                toast.dismiss(loadingToast);
+                toast.success("login successfull");
+                router.push("/");
+            }
         }
     }
 

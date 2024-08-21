@@ -6,7 +6,7 @@ import { cookies } from "next/headers";
 import Image from "next/image";
 import DeleteButton from "./deleteButton";
 import { GoDotFill } from "react-icons/go";
-import Timeago from "./timeago";
+import Timeago from "../../(lib)/timeago";
 import { getPlaiceholder } from "plaiceholder";
 import { TbFileSad } from "react-icons/tb";
 import { FaCircleUser } from "react-icons/fa6";
@@ -132,7 +132,7 @@ export default async function Slug({ params }) {
                 ) : (
                     <div className="flex gap-2 items-center py-3">
                         <MdLogin size={"1.4em"} />
-                        <Link href={"/login"} target="_blank">
+                        <Link href={`/login?redirect=/blog/${params.slug}`}>
                             <div className="font-medium text-sm cursor-pointer">
                                 please <u>login</u> to add comments.
                             </div>

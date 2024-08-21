@@ -52,7 +52,6 @@ input:focus {
 .comment-input {
     padding: 4px;
     border-bottom: 2px solid rgb(176, 176, 176);
-    width: 30%;
 }
 
 .text-area {
